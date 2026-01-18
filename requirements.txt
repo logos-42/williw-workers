@@ -1,0 +1,22 @@
+# 边缘服务器
+flask>=2.3.0
+flask-cors>=4.0.0
+requests>=2.31.0
+
+# 模型相关
+torch>=2.0.0
+transformers>=4.30.0
+onnx>=1.14.0
+onnxruntime>=1.15.0
+huggingface-hub>=0.16.0
+
+# 数据处理
+numpy>=1.24.0
+pandas>=2.0.0
+
+# 配置管理
+python-dotenv>=1.0.0
+pyyaml>=6.0.0
+
+# 算法层（引用lkc项目）
+# 需要将lkc项目添加到PYTHONPATH或安装到site-packages
