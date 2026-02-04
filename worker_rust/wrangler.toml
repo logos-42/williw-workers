@@ -1,0 +1,22 @@
+name = "williw-use-worker-rust"
+main = "build/worker/shim.mjs"
+compatibility_date = "2024-11-01"
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+[vars]
+# Demo default; production can pass via request body anyway.
+DEFAULT_STRATEGY = "compute"
+
+name = "williw-worker-rust"
+main = "build/worker/shim.mjs"
+compatibility_date = "2026-02-04"
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+[vars]
+# 默认元数据仓库（如需从HF拉取元数据可在此配置；当前Rust Worker示例支持直接传metadata）
+METADATA_REPO = "logos42/williw"
+

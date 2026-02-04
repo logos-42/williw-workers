@@ -1,0 +1,28 @@
+{
+  "model_id": "demo-model",
+  "num_layers": 12,
+  "plan": {
+    "assignments": [
+      {
+        "node_id": "node_a",
+        "start_layer": 0,
+        "end_layer": 8
+      },
+      {
+        "node_id": "node_b",
+        "start_layer": 9,
+        "end_layer": 10
+      },
+      {
+        "node_id": "node_c",
+        "start_layer": 11,
+        "end_layer": 11
+      }
+    ],
+    "execution_order": [
+      "node_a",
+      "node_b",
+      "node_c"
+    ]
+  }
+}

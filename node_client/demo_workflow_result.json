@@ -1,0 +1,35 @@
+{
+  "minimal_plan": {
+    "plan_version": 1,
+    "model_id": "demo-model",
+    "order": ["node_a", "node_b", "node_c"],
+    "assignments": [
+      { "node_id": "node_a", "layer_range": { "start_layer": 0, "end_layer": 9 } },
+      { "node_id": "node_b", "layer_range": { "start_layer": 10, "end_layer": 17 } },
+      { "node_id": "node_c", "layer_range": { "start_layer": 18, "end_layer": 23 } }
+    ]
+  },
+  "shards": [
+    {
+      "node_id": "node_a",
+      "node_index": 0,
+      "shard_path": "model_shards/shard_node_a.pth",
+      "layer_indices": [0,1,2,3,4,5,6,7,8,9],
+      "layer_count": 10
+    },
+    {
+      "node_id": "node_b",
+      "node_index": 1,
+      "shard_path": "model_shards/shard_node_b.pth",
+      "layer_indices": [10,11,12,13,14,15,16,17],
+      "layer_count": 8
+    },
+    {
+      "node_id": "node_c",
+      "node_index": 2,
+      "shard_path": "model_shards/shard_node_c.pth",
+      "layer_indices": [18,19,20,21,22,23],
+      "layer_count": 6
+    }
+  ]
+}

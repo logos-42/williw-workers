@@ -27,7 +27,8 @@ class TaskScheduler:
                               compute_requirement: Dict[str, Any],
                               available_nodes: List,
                               state_dict: Dict[str, Any],
-                              input_data: Dict[str, Any]) -> Dict[str, Any]:
+                              input_data: Dict[str, Any],
+                              return_minimal_plan: bool = False) -> Dict[str, Any]:
         """
         处理推理任务 - 完整流程
         
@@ -93,6 +94,32 @@ class TaskScheduler:
             split_strategy='compute'  # 按算力切分
         )
         print(f"✓ 模型切分完成，共 {len(model_shards)} 个分片\n")
+
+        # 如果只需要返回给节点的“最小 plan”，在这里直接生成并返回
+        if return_minimal_plan:
+            from .minimal_plan import LayerMeta, NodeInfo, build_minimal_plan
+
+            # 层元数据：这里用“层数=state_dict.keys()”做索引；compute_cost 暂以参数量作为近似
+            layer_names = list(state_dict.keys())
+            layers = []
+            for i, name in enumerate(layer_names):
+                tensor = state_dict[name]
+                numel = float(getattr(tensor, "numel", lambda: 0)())
+                layers.append(LayerMeta(layer_index=i, compute_cost=numel))
+
+            nodes = []
+            for n in primary_nodes:
+                node_id = getattr(n, "node_id", "unknown")
+                compute = float(self.node_selector.estimate_compute_power(n))
+                nodes.append(NodeInfo(node_id=node_id, compute=compute))
+
+            # 注意：此处 model_id 用外部传入更合理；目前沿用固定标识，接口层/Worker侧可替换
+            minimal = build_minimal_plan(model_id="unknown_model", layers=layers, nodes=nodes)
+
+            return {
+                "success": True,
+                "minimal_plan": minimal,
+            }
         
         # 步骤5: 任务分发（Megaphone Mode）
         print("阶段5: 任务分发（Megaphone Mode）")

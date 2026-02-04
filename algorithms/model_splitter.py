@@ -97,6 +97,67 @@ class ModelSplitter:
         print("=== 模型切分完成 ===\n")
         
         return shards
+
+    def split_by_layer_ranges(
+        self,
+        state_dict: Dict[str, torch.Tensor],
+        assignments: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """
+        按“层索引范围”切分模型（用于Worker返回的最小plan）。
+
+        Args:
+            state_dict: PyTorch模型state_dict
+            assignments: 来自最小plan的 assignments：
+                [
+                  {"node_id": "...", "layer_range": {"start_layer": 0, "end_layer": 12}},
+                  ...
+                ]
+
+        Returns:
+            分片列表（包含 shard_path + layer_indices；不包含 layer_names 等冗余信息）
+        """
+        print(f"\n=== 模型切分(按layer_range)开始 ===")
+        layer_names = list(state_dict.keys())
+        total_layers = len(layer_names)
+        if total_layers == 0:
+            print("警告: 模型没有层")
+            return []
+
+        shards: List[Dict[str, Any]] = []
+        for i, a in enumerate(assignments):
+            node_id = a.get("node_id", f"node_{i}")
+            lr = a.get("layer_range", {})
+            start = int(lr.get("start_layer", 0))
+            end = int(lr.get("end_layer", -1))
+
+            start = max(0, min(start, total_layers - 1))
+            end = max(0, min(end, total_layers - 1))
+            if end < start:
+                start, end = end, start
+
+            idxs = list(range(start, end + 1))
+            names = [layer_names[j] for j in idxs]
+            shard_state_dict = {name: state_dict[name].clone() for name in names}
+
+            shard_path = self.output_dir / f"shard_{node_id}.pth"
+            torch.save(shard_state_dict, shard_path)
+
+            shards.append(
+                {
+                    "node_id": node_id,
+                    "node_index": i,
+                    "shard_path": str(shard_path),
+                    "layer_indices": idxs,
+                    "layer_count": len(idxs),
+                }
+            )
+
+            print(f"节点{i} ({node_id}): {len(idxs)}层 -> {shard_path}")
+
+        print(f"模型切分完成，共{len(shards)}个分片")
+        print("=== 模型切分(按layer_range)完成 ===\n")
+        return shards
     
     def _equal_split(self, total_layers: int, num_nodes: int) -> List[int]:
         """均匀切分"""
