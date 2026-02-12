@@ -36,3 +36,13 @@ Thumbs.db
 # 临时文件
 *.tmp
 *.bak
+
+# Rust
+target/
+Cargo.lock
+build/
+*.wasm
+
+# Node
+node_modules/
+package-lock.json
