@@ -1,5 +1,5 @@
 [package]
-name = "williw-worker"
+name = "williw"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,23 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-worker = "0.4"
-console_error_panic_hook = "0.1"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-uuid = { version = "1", features = ["v4", "serde"] }
-
-[package]
-name = "worker_rust"
-version = "0.1.0"
-edition = "2021"
-
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
-worker = "0.5"
+worker = "0.7.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 anyhow = "1"
-
