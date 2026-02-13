@@ -42,18 +42,19 @@ pub async fn fetch(mut req: Request, _env: Env, _ctx: Context) -> Result<Respons
 <head>
     <title>Williw Workers API</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #1a1a2e; color: #eee; }
-        h1 { color: #00d4ff; }
-        .endpoint { background: #16213e; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #00d4ff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #000000; color: #ffffff; }
+        h1 { color: #ffffff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .endpoint { background: #0a0a0a; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ffffff; }
         .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
-        .get { background: #00d4ff; color: #000; }
-        .post { background: #4caf50; color: #fff; }
-        .path { font-family: monospace; font-size: 1.1em; }
-        .desc { color: #aaa; margin-top: 5px; }
+        .get { background: #ffffff; color: #000000; }
+        .post { background: #333333; color: #ffffff; border: 1px solid #ffffff; }
+        .path { font-family: monospace; font-size: 1.1em; color: #ffffff; }
+        .desc { color: #888888; margin-top: 5px; }
+        p { color: #aaaaaa; }
     </style>
 </head>
 <body>
-    <h1>🚀 Williw Workers API</h1>
+    <h1>Williw Workers API</h1>
     <p>Decentralized training node coordination service</p>
     
     <div class="endpoint">
@@ -236,12 +237,13 @@ pub async fn fetch(mut req: Request, _env: Env, _ctx: Context) -> Result<Respons
                 .map(|(_, v)| v.to_string())
                 .unwrap_or_default();
             
+            let now = js_sys::Date::new_0().to_iso_string().as_string().unwrap_or_default();
             let r = Response::from_json(&serde_json::json!({
                 "success": true,
                 "message": "Node health check",
                 "node_id": node_id,
                 "is_healthy": true,
-                "last_seen": chrono::Utc::now().to_rfc3339(),
+                "last_seen": now,
                 "current_load": 0.5,
                 "issues": []
             }))?;
@@ -253,11 +255,12 @@ pub async fn fetch(mut req: Request, _env: Env, _ctx: Context) -> Result<Respons
             let since = url.query_pairs().find(|(k, _)| k == "node_id")
                 .map(|(_, v)| v.to_string());
             
+            let now = js_sys::Date::new_0().to_iso_string().as_string().unwrap_or_default();
             // Return empty messages for now (no pending messages)
             let r = Response::from_json(&serde_json::json!({
                 "success": true,
                 "messages": [],
-                "poll_timestamp": chrono::Utc::now().to_rfc3339()
+                "poll_timestamp": now
             }))?;
             with_cors(r)
         }

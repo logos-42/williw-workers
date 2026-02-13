@@ -619,6 +619,8 @@ name = "williw"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "js-sys",
+ "once_cell",
  "serde",
  "serde_json",
  "worker",
