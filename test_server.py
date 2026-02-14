@@ -54,6 +54,58 @@ def request_inference():
         "fallback_nodes": []
     })
 
+@app.route('/api/process', methods=['POST'])
+def process_compute():
+    """模型切分规划端点 - 真实算法实现"""
+    data = request.json or {}
+    print(f"Received process request: {data}")
+    
+    # 提取参数
+    model_info = data.get("model", {})
+    nodes = data.get("nodes", [])
+    strategy = data.get("strategy", "compute")
+    
+    # 获取模型层数（如果没有提供，使用默认值）
+    total_layers = model_info.get("total_layers", 16)
+    
+    # 计算切分方案
+    num_nodes = len(nodes) if nodes else 1
+    layers_per_node = max(1, total_layers // max(num_nodes, 1))
+    
+    splits = []
+    for i, node in enumerate(nodes):
+        start_layer = i * layers_per_node
+        end_layer = min(start_layer + layers_per_node, total_layers)
+        
+        splits.append({
+            "node_id": node.get("node_id", f"node_{i}"),
+            "layer_range": [start_layer, end_layer],
+            "layers": list(range(start_layer, end_layer)),
+            "estimated_compute_time": (end_layer - start_layer) * 100,
+        })
+    
+    # 如果没有节点，返回空方案
+    if not nodes:
+        splits = [{"node_id": "local", "layer_range": [0, total_layers], "layers": list(range(total_layers))}]
+    
+    # 计算通信开销（基于节点数量）
+    communication_overhead = len(nodes) * 10 if len(nodes) > 1 else 0
+    
+    # 估算总时间
+    estimated_time = sum(s.get("estimated_compute_time", 0) for s in splits) + communication_overhead
+    
+    return jsonify({
+        "success": True,
+        "strategy": strategy,
+        "model": model_info,
+        "total_nodes": num_nodes,
+        "total_layers": total_layers,
+        "splits": splits,
+        "communication_overhead": communication_overhead,
+        "estimated_total_time": estimated_time,
+        "message": f"Generated split plan for {num_nodes} nodes"
+    })
+
 @app.route('/api/training-data', methods=['POST'])
 def training_data():
     data = request.json or {}
